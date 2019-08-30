@@ -1,24 +1,29 @@
+#Importing necessary libraries
 import pygame
 import random
 import time
+
+#Initialize pygame window
 pygame.init()
 window = pygame.display.set_mode((500,500))
 pygame.display.set_caption("The Game")
 
-#Sprites
+#PRE-LOADING -----------------------------------------
+#Sprites 
 bg=pygame.image.load('Img/bg.png')
 shipSprite = [pygame.image.load('Img/standBy.png'),pygame.image.load('Img/burst1.png'),pygame.image.load('Img/burst2.png')] 
 enemySprite = [pygame.image.load('Img/enemy01.png'),pygame.image.load('Img/enemy02.png'),pygame.image.load('Img/enemy03.png')]
 projectilesShip = [pygame.image.load('Img/ship_ammo01.png')]
 projectilesEnemy = [pygame.image.load('Img/enemy_ammo01.png'),pygame.image.load('Img/enemy_ammo02.png'),pygame.image.load('Img/enemy_ammo03.png')]
-#Clock and sounds
+#Clock 
 clock = pygame.time.Clock()
+#Sounds
 mainTheme = pygame.mixer.music.load("Sounds/SpaceInvadersMain1.wav")
 spacePulse = pygame.mixer.Sound('Sounds/pulse02.wav')
 spacePulse.set_volume(0.5)
 shipDestroyed = pygame.mixer.Sound('Sounds/shipDestroyed.wav')
 enemyDestroyed = pygame.mixer.Sound('Sounds/enemyDestroyed.wav')
-#Class
+#Classes
 class player(object):
 	def __init__(self,x,y,width,height,projectile):
 		self.x = x
@@ -65,7 +70,7 @@ class projectile(object):
 		self.origin = origin
 	def draw(self,window):
 		window.blit(self.typeProjectile,(self.x,self.y))
-
+#When player destroys an enemy
 def destroyedEnemy():
 	global score
 	global globalLevel
@@ -121,12 +126,14 @@ class enemy(object):
 			enemyDestroyed.play()
 			self.visible=False
 			destroyedEnemy()
+#Hitbox function			
 def hitbox(character,munition,munitions):
 	global shipMunitions
 	if munition.y - munition.radius < character.hitbox[1] + character.hitbox[3] and munition.y + munition.radius > character.hitbox[1]:
 		if munition.x + munition.radius > character.hitbox[0] and munition.x - munition.radius < character.hitbox[0] + character.hitbox[2]:
 			character.hitted()
 			munitions.pop(munitions.index(munition))
+
 def enemyShots(enemy,enemyMunitions,shootLoop):
 	i=0
 	randomNumb = random.randint(1,75)
@@ -140,6 +147,7 @@ def enemyShots(enemy,enemyMunitions,shootLoop):
 			enemyMunitions.pop(enemyMunitions.index(enemyMunition))
 		if ship.visible:
 			hitbox(ship,enemyMunition,enemyMunitions)
+#Text in the screen
 def textoScreen():
 	window.blit(bg,(0,0))
 	text = font.render("Score: " + str(score),1,(0,0,175))
@@ -173,7 +181,7 @@ def redrawGameWindow(shootLoop):
 		enemyShots(enemies[i],enemyMunitions,shootLoop)
 	pygame.display.update()
 
-#mainloop
+#Variables initializing
 globalLevel = 1
 font = pygame.font.SysFont('comicsans',30,True)
 
@@ -191,8 +199,9 @@ shootLoop=0
 shot=0
 pygame.mixer.music.play(-1,0.0)
 
-#RUN---------------------------------------------------------------------------------------------------------
+#RUN LOOP-----------------------------------------------------------------------------------------------------
 while run:
+	#Clock start
 	clock.tick(60)
 	if shootLoop>0:
 		shootLoop+=1
@@ -234,4 +243,5 @@ while run:
 
 	redrawGameWindow(shootLoop)
 
+#NECESSARY to avoid game crashes when user's closing the window. 
 pygame.quit()
